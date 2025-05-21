@@ -76,6 +76,11 @@ def display():
         draw_text(window_width/2 - 100, window_height/2 - 20, "Press 3: Hard" )
         glutSwapBuffers()
         return
+    if game_over:
+        # show game over message
+        draw_text(window_width/2 - 100, window_height/2 + 10, f"Game Over! Score: {score}", color=(5.0,0.2,0.2))
+        glutSwapBuffers()
+        return
     # update window title with current score
     glutSetWindowTitle(f"Snake Game - Score: {score}".encode('ascii'))
     # draw background grid
@@ -107,12 +112,15 @@ def timer(v):
         new_head[1] < 0 or new_head[1] >= grid_size or
         new_head in snake
     ):
+        # vibration sound for game over
+        play_gameover_sound()
         # update high score if needed
         global highscore
         if score > highscore:
             highscore = score
             save_highscore()
         game_over = True
+        glutPostRedisplay()  # immediately show Game Over screen
         print(f"Game Over! Score: {score}")
         # return to menu after delay
         glutTimerFunc(1500, back_to_menu, 0)
@@ -194,6 +202,13 @@ def load_highscore():
 def save_highscore():
     with open(highscore_file, 'w') as f:
         f.write(str(highscore))
+
+
+def play_gameover_sound():
+    """Play a vibration-like sound pattern on game over."""
+    # alternating beeps to simulate vibration
+    for freq, duration in [(400, 100), (600, 100)] * 5:
+        winsound.Beep(freq, duration)
 
 
 def main():
