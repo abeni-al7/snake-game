@@ -70,10 +70,17 @@ def draw_text(x, y, text, color=(1.0, 1.0, 1.0)):
 def display():
     glClear(GL_COLOR_BUFFER_BIT)
     if not started:
-        # show difficulty selection menu
-        draw_text(window_width/2 - 100, window_height/2 + 20, "Press 1: Easy" )
-        draw_text(window_width/2 - 100, window_height/2, "Press 2: Medium" )
-        draw_text(window_width/2 - 100, window_height/2 - 20, "Press 3: Hard" )
+        # show difficulty selection menu (1-9 levels, 0=10)
+        draw_text(window_width/2 - 150, window_height/2 + 20, "Select difficulty level:")
+        draw_text(window_width/2 - 150, window_height/2,   "Keys 1-9: Levels 1-9 (slow to fast)")
+        draw_text(window_width/2 - 150, window_height/2 - 20, "Level 0 (the hardest)")
+        # credits
+        draw_text(window_width/2 - 100, window_height/2 - 60, "Built by:")
+        draw_text(window_width/2 - 100, window_height/2 - 80, "Abenezer Alebachew")
+        draw_text(window_width/2 - 100, window_height/2 - 100, "Dejen Achenef")
+        draw_text(window_width/2 - 100, window_height/2 - 120, "Hailegebrel Yalember")
+        draw_text(window_width/2 - 100, window_height/2 - 140, "Daniot Mihrete")
+        draw_text(window_width/2 - 100, window_height/2 - 160, "Eyu Dawit")
         glutSwapBuffers()
         return
     if game_over:
@@ -142,9 +149,12 @@ def timer(v):
 def keyboard(key, x, y):
     global direction
     global started, base_interval
-    if not started and key in (b'1', b'2', b'3'):
-        # set difficulty
-        base_interval = {'1':200, '2':100, '3':50}[key.decode()]
+    # select difficulty (1-9, 0=10)
+    if not started and key in tuple(str(i).encode() for i in range(1,10)) + (b'0',):
+        ks = key.decode()
+        level = 10 if ks == '0' else int(ks)
+        # base_interval from 250ms (level1) down to 70ms (level10)
+        base_interval = 250 - (level-1)*20
         started = True
         reset_game()
         glutTimerFunc(base_interval, timer, 0)
