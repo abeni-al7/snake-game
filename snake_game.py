@@ -20,6 +20,10 @@ game_over = False
 started = False  # game start flag
 base_interval = 100  # will be set by difficulty selection
 
+# high score persistence
+highscore_file = "highscore.txt"
+highscore = 0
+
 
 def reset_game():
     global snake, direction, apple, score, game_over
@@ -84,6 +88,8 @@ def display():
         draw_rect(pos[0], pos[1], color)
     # draw score text
     draw_text(5, window_height - 20, f"Score: {score}")
+    # draw high score at top-right
+    draw_text(window_width - 150, window_height - 20, f"High Score: {highscore}")
     glutSwapBuffers()
 
 
@@ -101,10 +107,15 @@ def timer(v):
         new_head[1] < 0 or new_head[1] >= grid_size or
         new_head in snake
     ):
+        # update high score if needed
+        global highscore
+        if score > highscore:
+            highscore = score
+            save_highscore()
         game_over = True
         print(f"Game Over! Score: {score}")
-        # restart after short delay
-        glutTimerFunc(1500, lambda x: (reset_game(), glutPostRedisplay()), 0)
+        # return to menu after delay
+        glutTimerFunc(1500, back_to_menu, 0)
         return
     # move snake
     snake.insert(0, new_head)
@@ -164,8 +175,30 @@ def reshape(w, h):
     glLoadIdentity()
 
 
+def back_to_menu(v):
+    global started
+    reset_game()
+    started = False
+    glutPostRedisplay()
+
+
+def load_highscore():
+    global highscore
+    try:
+        with open(highscore_file, 'r') as f:
+            highscore = int(f.read())
+    except:
+        highscore = 0
+
+
+def save_highscore():
+    with open(highscore_file, 'w') as f:
+        f.write(str(highscore))
+
+
 def main():
     global apple
+    load_highscore()
     glutInit()
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
     glutInitWindowSize(window_width, window_height)
@@ -174,6 +207,7 @@ def main():
     glClearColor(0.0, 0.0, 0.0, 1.0)
     reshape(window_width, window_height)
     reset_game()
+    load_highscore()  # load high score at start
     glutDisplayFunc(display)
     glutKeyboardFunc(keyboard)
     glutSpecialFunc(special_input)
