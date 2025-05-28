@@ -19,6 +19,7 @@ score = 0
 game_over = False
 started = False  # game start flag
 base_interval = 100  # will be set by difficulty selection
+paused = False  # pause flag
 
 # high score persistence
 highscore_file = "highscore.txt"
@@ -88,6 +89,11 @@ def display():
         draw_text(window_width/2 - 100, window_height/2 + 10, f"Game Over! Score: {score}", color=(5.0,0.2,0.2))
         glutSwapBuffers()
         return
+    if paused:
+        # show paused message
+        draw_text(window_width/2 - 100, window_height/2, "Paused - Press P to resume", color=(1.0,1.0,0.0))
+        glutSwapBuffers()
+        return
     # update window title with current score
     glutSetWindowTitle(f"Snake Game - Score: {score}".encode('ascii'))
     # draw background grid
@@ -106,10 +112,9 @@ def display():
 
 
 def timer(v):
-    global game_over, score, apple, direction
-    if not started:
-        return
-    if game_over:
+    global game_over, score, apple, direction, paused
+    # pause or end conditions
+    if not started or paused or game_over:
         return
     head = snake[0]
     new_head = (head[0] + direction[0], head[1] + direction[1])
@@ -147,8 +152,14 @@ def timer(v):
 
 
 def keyboard(key, x, y):
-    global direction
-    global started, base_interval
+    global direction, started, base_interval, paused
+    # toggle pause
+    if key in (b'p', b'P') and started and not game_over:
+        paused = not paused
+        if not paused:
+            glutTimerFunc(base_interval, timer, 0)
+        glutPostRedisplay()
+        return
     # select difficulty (1-9, 0=10)
     if not started and key in tuple(str(i).encode() for i in range(1,10)) + (b'0',):
         ks = key.decode()
