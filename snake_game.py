@@ -20,6 +20,7 @@ game_over = False
 started = False  # game start flag
 base_interval = 100  # will be set by difficulty selection
 paused = False  # pause flag
+game_won = False  # win flag
 
 # high score persistence
 highscore_file = "highscore.txt"
@@ -28,11 +29,13 @@ highscore = 0
 
 def reset_game():
     global snake, direction, apple, score, game_over
+    global game_won
     snake = [(grid_size // 2, grid_size // 2)]
     direction = (1, 0)
     apple = place_apple()
     score = 0
     game_over = False
+    game_won = False
 
 
 def place_apple():
@@ -89,6 +92,11 @@ def display():
         draw_text(window_width/2 - 100, window_height/2 + 10, f"Game Over! Score: {score}", color=(5.0,0.2,0.2))
         glutSwapBuffers()
         return
+    if game_won:
+        # show win message
+        draw_text(window_width/2 - 100, window_height/2 + 10, f"You Won! Score: {score}", color=(0.2,1.0,0.2))
+        glutSwapBuffers()
+        return
     if paused:
         # show paused message
         draw_text(window_width/2 - 100, window_height/2, "Paused - Press P to resume", color=(1.0,1.0,0.0))
@@ -143,6 +151,15 @@ def timer(v):
         score += 1
         winsound.Beep(1000, 100)  # beep on eating apple
         apple = place_apple()
+        # check win condition: filled entire grid
+        max_score = grid_size * grid_size - 1
+        if score == max_score:
+            global game_won
+            game_won = True
+            glutPostRedisplay()
+            # return to menu after short delay
+            glutTimerFunc(3000, back_to_menu, 0)
+            return
     else:
         snake.pop()
     glutPostRedisplay()
