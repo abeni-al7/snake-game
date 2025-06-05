@@ -152,7 +152,7 @@ def timer(v):
         winsound.Beep(1000, 100)  # beep on eating apple
         apple = place_apple()
         # check win condition: filled entire grid
-        max_score = grid_size * grid_size - 1
+        max_score = 397
         if score == max_score:
             global game_won
             game_won = True
