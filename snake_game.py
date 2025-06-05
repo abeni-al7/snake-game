@@ -165,7 +165,7 @@ def timer(v):
         snake.pop()
     glutPostRedisplay()
     # dynamic speed: increase difficulty as score rises
-    interval = max(250, base_interval - score * 2)
+    interval = max(50, base_interval - score * 2)
     glutTimerFunc(interval, timer, 0)
 
 
