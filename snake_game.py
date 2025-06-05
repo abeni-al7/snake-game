@@ -154,6 +154,7 @@ def timer(v):
         # check win condition: filled entire grid
         max_score = 397
         if score == max_score:
+            load_highscore()
             global game_won
             game_won = True
             glutPostRedisplay()
@@ -164,7 +165,7 @@ def timer(v):
         snake.pop()
     glutPostRedisplay()
     # dynamic speed: increase difficulty as score rises
-    interval = max(50, base_interval - score * 2)
+    interval = max(250, base_interval - score * 2)
     glutTimerFunc(interval, timer, 0)
 
 
