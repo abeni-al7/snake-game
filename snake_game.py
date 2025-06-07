@@ -120,7 +120,7 @@ def display():
 
 
 def timer(v):
-    global game_over, score, apple, direction, paused
+    global game_over, score, apple, direction, paused, highscore
     # pause or end conditions
     if not started or paused or game_over:
         return
@@ -135,7 +135,6 @@ def timer(v):
         # vibration sound for game over
         play_gameover_sound()
         # update high score if needed
-        global highscore
         if score > highscore:
             highscore = score
             save_highscore()
@@ -154,7 +153,8 @@ def timer(v):
         # check win condition: filled entire grid
         max_score = 397
         if score == max_score:
-            load_highscore()
+            highscore = score
+            save_highscore()
             global game_won
             game_won = True
             glutPostRedisplay()
